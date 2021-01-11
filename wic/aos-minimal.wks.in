@@ -1,9 +1,8 @@
-# short-description: Create an EFI disk image for genericx86*
-# long-description: Creates a partitioned EFI disk image for genericx86* machines
-part boot0 --source aos-bootimg-efi --sourceparams="loader=grub-efi,initrd=core-image-tiny-initramfs-genericx86-64.cpio.gz,version=${BOARD_BOOT_VERSION}" --ondisk hda --label msdos --active --align 1024 --size 128M
-part boot1 --source aos-bootimg-efi --sourceparams="loader=grub-efi,initrd=core-image-tiny-initramfs-genericx86-64.cpio.gz,version=${BOARD_BOOT_VERSION}" --ondisk hda --label msdos --align 1024 --size 128M
-part / --source rootfs --ondisk hda --fstype=ext4 --label platform --align 1024 --size 1024M
-part /var --source rootfs --rootfs-dir=${IMAGE_ROOTFS}/var --ondisk hda --fstype=ext4 --label aos --align 1024 --size 2048M --fsoptions="defaults,usrjquota=aquota.user,jqfmt=vfsv0"
-part swap --ondisk hda --size 44 --label swap1 --fstype=swap
+# short-description: Create SD card image with a boot partition
+# long-description: Creates a partitioned SD card image. Boot files
+# are located in the first vfat partition.
 
-bootloader --ptable gpt --timeout=5 --append="root=/dev/hda3 ro userdata=/dev/hda4 rootfstype=ext4 console=tty0"
+part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --align 4 --size 16
+part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label root --align 4
+part /var/aos --source rootfs --rootfs-dir=${IMAGE_ROOTFS}/var/aos --ondisk mmcblk0 --fstype=ext4 --label aos --align 4 --size 2048M
+part /var --ondisk mmcblk0 --fstype=ext4 --label var --align 4 --size 2048M
