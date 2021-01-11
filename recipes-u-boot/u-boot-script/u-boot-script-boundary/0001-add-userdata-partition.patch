@@ -1,0 +1,24 @@
+From 9adef4cdc7d2c8ca1ea78782018ec61e8327d249 Mon Sep 17 00:00:00 2001
+From: Valerii Chubar <valerii_chubar@epam.com>
+Date: Wed, 28 Oct 2020 12:19:32 +0200
+Subject: [PATCH] add userdata partition
+
+---
+ board/boundary/bootscripts/bootscript-mainline.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/board/boundary/bootscripts/bootscript-mainline.txt b/board/boundary/bootscripts/bootscript-mainline.txt
+index 378a655a47..bb593ab4ec 100644
+--- a/board/boundary/bootscripts/bootscript-mainline.txt
++++ b/board/boundary/bootscripts/bootscript-mainline.txt
+@@ -157,6 +157,7 @@ fi
+ 
+ setenv bootargs "$bootargs console=${console},115200 vmalloc=${vmalloc}"
+ setenv bootargs "$bootargs cma=${cma} consoleblank=0 root=${root} rootwait"
++setenv bootargs "$bootargs userdata=/dev/mmcblk1p4"
+ 
+ if itest.s "x" != "x${loglevel}" ; then
+ 	setenv bootargs ${bootargs} loglevel=${loglevel}
+-- 
+2.17.1
+

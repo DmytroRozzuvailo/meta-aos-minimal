@@ -1,0 +1,63 @@
+From 2df534608e203346acd48e81dac8ac409f62c41a Mon Sep 17 00:00:00 2001
+From: Valerii Chubar <valerii_chubar@epam.com>
+Date: Wed, 23 Sep 2020 15:06:43 +0300
+Subject: [PATCH] load initramfs
+
+---
+ .../bootscripts/bootscript-mainline.txt       | 20 +++++++++----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
+
+diff --git a/board/boundary/bootscripts/bootscript-mainline.txt b/board/boundary/bootscripts/bootscript-mainline.txt
+index 378a655a47..7e5e73e4a1 100644
+--- a/board/boundary/bootscripts/bootscript-mainline.txt
++++ b/board/boundary/bootscripts/bootscript-mainline.txt
+@@ -2,6 +2,7 @@ setenv bootargs ''
+ 
+ setenv initrd_high 0xffffffff
+ kernelimage=zImage
++ramdiskimage=uInitramfs
+ bootcommand=bootz
+ a_base=0x10000000
+ if itest.s x51 == "x${imx_cpu}" ; then
+@@ -128,16 +129,7 @@ if itest.s x${rfspart} == x ; then
+ 	rfspart=2
+ fi
+ 
+-if itest.s "x" == "x${root}"; then
+-	part uuid ${devtype} ${devnum}:${rfspart} uuid
+-	if itest.s "x" != "x${uuid}"; then
+-		root=PARTUUID=${uuid}
+-	elif test "sata" = "${devtype}" || test "usb" = "${devtype}" ; then
+-		root=/dev/sda${rfspart}
+-	else
+-		root=/dev/mmcblk${devnum}p${rfspart}
+-	fi
+-fi
++root=/dev/mmcblk1p${rfspart}
+ 
+ if itest.s "x" == "x$cma" ; then
+ 	cma=256M
+@@ -158,6 +150,12 @@ fi
+ setenv bootargs "$bootargs console=${console},115200 vmalloc=${vmalloc}"
+ setenv bootargs "$bootargs cma=${cma} consoleblank=0 root=${root} rootwait"
+ 
++
++if load ${devtype} ${devnum}:${distro_bootpart} ${a_ramdisk} ${prefix}${ramdiskimage} ; then
++else
++   echo "Error loading initramfs image ${prefix}${ramdiskimage}"
++fi
++
+ if itest.s "x" != "x${loglevel}" ; then
+ 	setenv bootargs ${bootargs} loglevel=${loglevel}
+ fi
+@@ -169,6 +167,6 @@ fi
+ setenv bootargs ${bootargs} snd.slots=,snd-soc-imx-hdmi
+ 
+ if load ${devtype} ${devnum}:${distro_bootpart} ${a_zImage} ${prefix}${kernelimage} ; then
+-	${bootcommand} ${a_zImage} - ${a_fdt}
++	${bootcommand} ${a_zImage} ${a_ramdisk} ${a_fdt}
+ fi
+ echo "Error loading kernel image"
+-- 
+2.17.1
+
