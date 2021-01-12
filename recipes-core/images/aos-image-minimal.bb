@@ -1,10 +1,28 @@
+
 SUMMARY = "An image which contains AOS components"
 
 IMAGE_INSTALL = "packagegroup-core-boot kernel-modules ${CORE_IMAGE_EXTRA_INSTALL}"
 
+IMAGE_INSTALL_append = " kernel-modules"
+
+# Add systemd configuration
+DISTRO_FEATURES_append = " systemd"
+DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
+VIRTUAL-RUNTIME_init_manager = "systemd"
+VIRTUAL-RUNTIME_initscripts = "systemd-compat-units"
+
+# Initramfs configuration
+INITRAMFS_IMAGE = "core-image-tiny-initramfs"
+INITRAMFS_IMAGE_BUNDLE = "0"
+IMAGE_FSTYPES += " tar.bz2 wic cpio.gz"
+do_image_wic[depends] += "core-image-tiny-initramfs:do_image_complete"
+IMAGE_BOOT_FILES_append = " uInitramfs"
+
 IMAGE_LINGUAS = " "
-IMAGE_FSTYPES = "tar.bz2 squashfs wic.vmdk"
+IMAGE_FSTYPES_append = " squashfs tar.bz2"
+
 LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
 inherit core-image
 inherit extrausers
